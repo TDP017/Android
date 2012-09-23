@@ -1,0 +1,42 @@
+package se.magnussuther.aes;
+
+import java.util.ArrayList;
+
+public abstract class TimeLogger {
+	class Time {
+		private long mStartTime = 0;
+		private long mStopTime = 0;
+		private String message = null;
+		
+		public Time(final String message) {
+			
+		}
+	}
+	private static TimeLogger mInstance = null;
+	private ArrayList<Time> mTimes = null;
+	
+	public TimeLogger() {
+		mTimes = new ArrayList<Time>();
+	}
+	
+	private TimeLogger() {
+		mTimes = new ArrayList<Time>();
+	}
+	
+	public static TimeLogger getInstance() {
+		synchronized (TimeLogger.mInstance) {
+			if (TimeLogger.mInstance == null) {
+				TimeLogger.mInstance = new TimeLogger();
+			}
+			return mInstance;
+		}
+	}
+	
+	public void start(final String message) {
+		
+	}
+	
+	public void stop() {
+		
+	}
+}

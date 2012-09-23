@@ -1,0 +1,7 @@
+package se.magnussuther.aes;
+
+public class TimeLogger {
+	public TimeLogger() {
+		
+	}
+}

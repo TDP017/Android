@@ -1,0 +1,19 @@
+package se.magnussuther.aes;
+
+import java.util.ArrayList;
+
+public class TimeLogger {
+	private ArrayList<Long> mTimes = null;
+	
+	public TimeLogger() {
+		mTimes = new ArrayList<Long>();
+	}
+	
+	public void start(final String message) {
+		
+	}
+	
+	public void stop(final String message) {
+		
+	}
+}

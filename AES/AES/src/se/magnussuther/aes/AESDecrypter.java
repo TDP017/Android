@@ -22,14 +22,21 @@ public class AESDecrypter extends AES {
 	}
 
 	public byte[] decryptData(byte[] data) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		TimeLogger.start("AESDecrypter.decryptData(): Setting up secret key");
 		Cipher c = Cipher.getInstance(getCipherModePadding());
 		char[] passphrase = getPassphrase().toCharArray();
 		PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, getSalt(), getHashIterations(), getKeyLength());
 		SecretKeyFactory keyfactory = SecretKeyFactory.getInstance(getKeyGenerationAlgorithm());
 		SecretKey sk = keyfactory.generateSecret(pbeKeySpec);
 		IvParameterSpec iv = new IvParameterSpec(getInitializationVector());
+		TimeLogger.stop();
+		TimeLogger.start("AESDecrypter.decryptData(): Initializing Cipher");
 		c.init(Cipher.DECRYPT_MODE, sk, iv);
+		TimeLogger.stop();
 		
-		return c.doFinal(data);
+		TimeLogger.start("AESDecrypter.decryptData(): Decrypting data");
+		byte[] bytes = c.doFinal(data);
+		TimeLogger.stop();
+		return bytes;
 	}
 }

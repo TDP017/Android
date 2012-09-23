@@ -44,11 +44,15 @@ public class MainActivity extends Activity implements MainViewEvents {
         
         
         try {
+        	TimeLogger.start("MainActivity.onCreate(): Encrypting image");
             byte[] encrypted = encryptImage(Environment.getExternalStorageDirectory() + "/AES/donald-orig.jpg");
+            TimeLogger.stop();
             File f = new File(Environment.getExternalStorageDirectory() + "/AES/donald-encrypted.enc");
             f.createNewFile();
+            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
         	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
         	bos.write(encrypted);
+        	TimeLogger.stop();
         } catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,8 +67,13 @@ public class MainActivity extends Activity implements MainViewEvents {
 
 	private byte[] encryptImage(final String imagePath) {
 		try {
+			TimeLogger.start("MainActivity.encryptImage(): Reading original image from SD card");
 			byte[] origImage = mImageFetcher.getImageBytes(imagePath);
-			return mAES.getEncrypter().encryptData(origImage);
+			TimeLogger.stop();
+			TimeLogger.start("MainActivity.encryptImage(): Encrypting image data");
+			byte[] bytes = mAES.getEncrypter().encryptData(origImage);
+			TimeLogger.stop();
+			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,8 +106,13 @@ public class MainActivity extends Activity implements MainViewEvents {
 	
 	private byte[] decryptImage(final String imagePath) {
 		try {
+			TimeLogger.start("MainActivity.decryptImage(): Reading decrypted image from SD card");
 			byte[] encrypted = mImageFetcher.getImageBytes(imagePath);
-			return mAES.getDecrypter().decryptData(encrypted);
+			TimeLogger.stop();
+			TimeLogger.start("MainActivity.decryptImage(): Decrypting image data");
+			byte[] bytes =  mAES.getDecrypter().decryptData(encrypted);
+			TimeLogger.stop();
+			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

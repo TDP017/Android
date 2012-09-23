@@ -1,0 +1,15 @@
+package se.magnussuther.aes;
+
+public class TimeLogger {
+	public TimeLogger() {
+		
+	}
+	
+	public void start(final String message) {
+		
+	}
+	
+	public void stop(final String message) {
+		
+	}
+}

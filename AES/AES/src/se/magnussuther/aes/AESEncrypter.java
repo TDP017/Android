@@ -22,7 +22,7 @@ public class AESEncrypter extends AES {
 	
 	
 	public byte[] encryptData(final byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-		TimeLogger.start("AESEncrypter.encryptData(): Setting up secret key");
+//		TimeLogger.start("AESEncrypter.encryptData(): Setting up secret key");
 		char[] passphrase = getPassphrase().toCharArray();
 		PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, getSalt(), getHashIterations(), getKeyLength());
 		SecretKeyFactory keyfactory = SecretKeyFactory.getInstance(getKeyGenerationAlgorithm());
@@ -31,13 +31,13 @@ public class AESEncrypter extends AES {
 //		SecretKey skforAES = new SecretKeySpec(skAsByteArray, "AES");
 		Cipher c = Cipher.getInstance(getCipherModePadding());
 		IvParameterSpec iv = new IvParameterSpec(getInitializationVector());
-		TimeLogger.stop();
-		TimeLogger.start("AESEncrypter.encryptData(): Initializing Cipher");
+//		TimeLogger.stop();
+//		TimeLogger.start("AESEncrypter.encryptData(): Initializing Cipher");
 		c.init(Cipher.ENCRYPT_MODE, sk, iv);
-		TimeLogger.stop();
-		TimeLogger.start("AESEncrypter.encryptData(): Encrypting data");
+//		TimeLogger.stop();
+//		TimeLogger.start("AESEncrypter.encryptData(): Encrypting data");
 		byte[] bytes = c.doFinal(data);
-		TimeLogger.stop();
+//		TimeLogger.stop();
 		return bytes;
 	}
 }

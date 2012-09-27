@@ -9,6 +9,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.crypto.BadPaddingException;
@@ -19,7 +20,6 @@ import android.app.Activity;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 
 public class MainActivity extends Activity implements MainViewEvents {
 	private static final String TAG = "AES MainActivity";
@@ -64,24 +64,21 @@ public class MainActivity extends Activity implements MainViewEvents {
         TimeLogger.setLogFile(logFile);
        
         
-        
-        
-        // Orig
-        // Crypt
-        File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
-        String[]originals = orig.list();
-        for (String path : originals) {
+
+	    File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
+	    String[]originals = orig.list();
+	    for (String path : originals) {
 	        try {
 	        	File f = new File(Environment.getExternalStorageDirectory() + "/AES/Orig/" + path);
-	        	TimeLogger.start("MainActivity.onCreate(): Encrypting image " + f.getAbsolutePath());
+//	        	TimeLogger.start("MainActivity.onCreate(): Encrypting image " + f.getAbsolutePath());
 	            byte[] encrypted = encryptImage(f.getAbsolutePath());
-	            TimeLogger.stop();
+//	            TimeLogger.stop();
 	            File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + f.getName());
 	            crypt.createNewFile();
-	            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
+//	            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
 	        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(crypt));
 	        	bos.write(encrypted);
-	        	TimeLogger.stop();
+//	        	TimeLogger.stop();
 	        } catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -89,23 +86,17 @@ public class MainActivity extends Activity implements MainViewEvents {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }
-        // The encrypted image will be decrypted on the next
-        // mMainView.onDraw(), which will happen soon...
-        
-        
-        
-        
+	    }
     }
 
 	private byte[] encryptImage(final String imagePath) {
 		try {
-			TimeLogger.start("MainActivity.encryptImage(): Reading original image from SD card");
+//			TimeLogger.start("MainActivity.encryptImage(): Reading original image from SD card");
 			byte[] origImage = mImageFetcher.getImageBytes(imagePath);
-			TimeLogger.stop();
-			TimeLogger.start("MainActivity.encryptImage(): Encrypting image data");
+//			TimeLogger.stop();
+//			TimeLogger.start("MainActivity.encryptImage(): Encrypting image data");
 			byte[] bytes = mAES.getEncrypter().encryptData(origImage);
-			TimeLogger.stop();
+//			TimeLogger.stop();
 			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -139,12 +130,12 @@ public class MainActivity extends Activity implements MainViewEvents {
 	
 	private byte[] decryptImage(final String imagePath) {
 		try {
-			TimeLogger.start("MainActivity.decryptImage(): Reading decrypted image from SD card");
+//			TimeLogger.start("MainActivity.decryptImage(): Reading decrypted image from SD card");
 			byte[] encrypted = mImageFetcher.getImageBytes(imagePath);
-			TimeLogger.stop();
-			TimeLogger.start("MainActivity.decryptImage(): Decrypting image data");
+//			TimeLogger.stop();
+//			TimeLogger.start("MainActivity.decryptImage(): Decrypting image data");
 			byte[] bytes =  mAES.getDecrypter().decryptData(encrypted);
-			TimeLogger.stop();
+//			TimeLogger.stop();
 			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -179,17 +170,28 @@ public class MainActivity extends Activity implements MainViewEvents {
 		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
 		String[] files = crypt.list();
 		
+        	
 		
 		for (String path: files) {
-			File file = new File(path);
-			TimeLogger.start("MainActivity.onMainViewDraw(). Decrypting " + path);
-			byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
-			TimeLogger.stop();
-			// Well, this certainly is a waste of memory, but is needed to get an immutable Bitmap:
-//			Bitmap bm = BitmapFactory.decodeByteArray(original, 0, original.length);//.copy(Bitmap.Config.ARGB_8888, true);
-        
-//			canvas.drawBitmap(bm, 0, 0, null);
-		}
+			double avg = 0;
+			
+			for (int i = 0; i != 10; i++) {
+				File file = new File(path);
+//				TimeLogger.start("MainActivity.onMainViewDraw(). Decrypting " + path);
+				long startTime = System.nanoTime();
+				byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
+//				TimeLogger.stop();
+				double time = System.nanoTime() - startTime;
+				avg += time / 1000000000.0;
+				if (i == 9) {
+					TimeLogger.log("Image: " + path + " Time: " + avg / 10.0);
+				}
+				// Well, this certainly is a waste of memory, but is needed to get an immutable Bitmap:
+	//			Bitmap bm = BitmapFactory.decodeByteArray(original, 0, original.length);//.copy(Bitmap.Config.ARGB_8888, true);
+	        
+	//			canvas.drawBitmap(bm, 0, 0, null);
+			}
+        }
 	}
 }
 

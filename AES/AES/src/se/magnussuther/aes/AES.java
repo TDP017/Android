@@ -56,7 +56,6 @@ public class AES {
 		return mKeyLength;
 	}
 
-	
 	public AESEncrypter getEncrypter() {
 		return new AESEncrypter(mPassphrase, mKeyGenerationAlgorithm, mCipherModePadding, mInitializationVector, mSalt, mHashIterations, mKeyLength);
 	}

@@ -40,17 +40,31 @@ public abstract class TimeLogger {
 		TimeLogger.sTimes.add(new TimeLogger.Time(message));
 	}
 	
-	public static void stop() {
+	public static double stop() {
 		TimeLogger.Time time = TimeLogger.sTimes.remove(TimeLogger.sTimes.size() - 1);
 		long elapsed = System.nanoTime() - time.getStartTime();
 		
 		String message = time.getMessage() + ". Execution took " + elapsed / 1000000000.0 + " seconds.\n";
 		
-
+		
 		try {
 			TimeLogger.sWriter.append(message);
 
-			TimeLogger.sWriter.write(message);
+			TimeLogger.sWriter.newLine();
+			TimeLogger.sWriter.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return elapsed / 1000000000.0;
+	}
+
+	
+	public static void log(String message) {
+		try {
+			TimeLogger.sWriter.append(message);
+
 			TimeLogger.sWriter.newLine();
 			TimeLogger.sWriter.flush();
 		} catch (IOException e) {
@@ -58,7 +72,7 @@ public abstract class TimeLogger {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static void setLogFile(File f) {
 		TimeLogger.sLogFile = f;
 		

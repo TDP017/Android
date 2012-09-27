@@ -9,6 +9,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Calendar;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -42,6 +43,27 @@ public class MainActivity extends Activity implements MainViewEvents {
         byte[] salt = {0,1,2,3,4,5,6,7,8,9,0xA,0xB,0xC,0xD,0xE,0xF};
         mAES = new AES("secretdonald", "PBEWITHSHAANDTWOFISH-CBC", "AES/CBC/PKCS7Padding", iv, salt, 10000, 256);
         
+        
+        // Create log file
+        Calendar cal = Calendar.getInstance();
+        String logPath = Environment.getExternalStorageDirectory() + "/AES/log_" + cal.get(Calendar.YEAR) 
+        		+ "-" + cal.get(Calendar.MONTH) 
+        		+ "-" + cal.get(Calendar.DAY_OF_MONTH) 
+        		+ "." + cal.get(Calendar.HOUR_OF_DAY) 
+        		+ ":" +  cal.get(Calendar.MINUTE) 
+        		+ ":" + cal.get(Calendar.SECOND) 
+        		+ ".txt";
+        File logFile = new File(logPath);
+        if (!logFile.exists()) {
+        	try {
+				logFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+        TimeLogger.setLogFile(logFile);
+       
         
         try {
         	TimeLogger.start("MainActivity.onCreate(): Encrypting image");

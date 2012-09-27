@@ -44,7 +44,7 @@ public abstract class TimeLogger {
 		TimeLogger.Time time = TimeLogger.sTimes.remove(TimeLogger.sTimes.size() - 1);
 		long elapsed = System.nanoTime() - time.getStartTime();
 		
-		String message = time.getMessage() + ". Execution took " + elapsed / 1000000000.0 + " seconds.";
+		String message = time.getMessage() + ". Execution took " + elapsed / 1000000000.0 + " seconds.\n";
 		
 
 		try {

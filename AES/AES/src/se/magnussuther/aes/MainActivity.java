@@ -16,11 +16,10 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 
 public class MainActivity extends Activity implements MainViewEvents {
 	private static final String TAG = "AES MainActivity";
@@ -65,26 +64,38 @@ public class MainActivity extends Activity implements MainViewEvents {
         TimeLogger.setLogFile(logFile);
        
         
-        try {
-        	TimeLogger.start("MainActivity.onCreate(): Encrypting image");
-            byte[] encrypted = encryptImage(Environment.getExternalStorageDirectory() + "/AES/donald-orig.jpg");
-            TimeLogger.stop();
-            File f = new File(Environment.getExternalStorageDirectory() + "/AES/donald-encrypted.enc");
-            f.createNewFile();
-            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
-        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
-        	bos.write(encrypted);
-        	TimeLogger.stop();
-        } catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+        
+        
+        // Orig
+        // Crypt
+        File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
+        String[]originals = orig.list();
+        for (String path : originals) {
+	        try {
+	        	File f = new File(Environment.getExternalStorageDirectory() + "/AES/Orig/" + path);
+	        	TimeLogger.start("MainActivity.onCreate(): Encrypting image " + f.getAbsolutePath());
+	            byte[] encrypted = encryptImage(f.getAbsolutePath());
+	            TimeLogger.stop();
+	            File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + f.getName());
+	            crypt.createNewFile();
+	            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
+	        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(crypt));
+	        	bos.write(encrypted);
+	        	TimeLogger.stop();
+	        } catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
         // The encrypted image will be decrypted on the next
         // mMainView.onDraw(), which will happen soon...
+        
+        
+        
+        
     }
 
 	private byte[] encryptImage(final String imagePath) {
@@ -165,11 +176,20 @@ public class MainActivity extends Activity implements MainViewEvents {
 	}
 
 	public void onMainViewDraw(Canvas canvas) {
-        byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/donald-encrypted.enc");
-        // Well, this certainly is a waste of memory, but is needed to get an immutable Bitmap:
-        Bitmap bm = BitmapFactory.decodeByteArray(original, 0, original.length).copy(Bitmap.Config.ARGB_8888, true);
+		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
+		String[] files = crypt.list();
+		
+		
+		for (String path: files) {
+			File file = new File(path);
+			TimeLogger.start("MainActivity.onMainViewDraw(). Decrypting " + path);
+			byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
+			TimeLogger.stop();
+			// Well, this certainly is a waste of memory, but is needed to get an immutable Bitmap:
+//			Bitmap bm = BitmapFactory.decodeByteArray(original, 0, original.length);//.copy(Bitmap.Config.ARGB_8888, true);
         
-        canvas.drawBitmap(bm, 0, 0, null);
+//			canvas.drawBitmap(bm, 0, 0, null);
+		}
 	}
 }
 

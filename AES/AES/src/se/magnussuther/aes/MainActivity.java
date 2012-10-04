@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         setContentView(R.layout.activity_main);
         
         /*
@@ -50,7 +49,7 @@ public class MainActivity extends Activity {
         
         byte[] iv = {0xA,1,0xB,5,4,0xF,7,9,0x17,3,1,6,8,0xC,0xD,91};
         byte[] salt = {0,1,2,3,4,5,6,7,8,9,0xA,0xB,0xC,0xD,0xE,0xF};
-        mAES = new AES("secretdonald", "PBEWITHSHAANDTWOFISH-CBC", "AES/CBC/PKCS7Padding", iv, salt, 10000, 256);
+        mAES = new AES("secretdonald", "PBEWITHSHAAND128BITAES-CBC-BC", "AES/CBC/PKCS7Padding", iv, salt, 10000, 256);
         
         
         // Create log file
@@ -99,8 +98,20 @@ public class MainActivity extends Activity {
     @Override
 	public void onStart(){
     	super.onStart();
-        	
-		 onMainViewDraw();
+    	
+		 
+    	
+    	Thread thread1 = new Thread(){
+            public void run(){
+                try {
+                	onMainViewDraw();
+                } catch (Exception e) {
+                    Log.d("RYAN", "Thread exception " + e.getMessage());
+                }
+            }
+        };
+        thread1.start();
+
 	}
     
     
@@ -184,29 +195,50 @@ public class MainActivity extends Activity {
 		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
 		String[] files = crypt.list();
 		
-		Log.d(TAG, "INSIDE ONMAINVIEWDRAW");
-		
-		TextView t=new TextView(this);
-		 t=(TextView)findViewById(R.id.debugText); 
-
-		 /*
-		 LinearLayout vg = (LinearLayout)findViewById (R.id.hassan);
-		 vg.invalidate();
-*/
-		 
-		 getWindow().getDecorView().findViewById(android.R.id.content).invalidate();
+		String currentFile = "nope";
 		
 		for (String path: files) {
 			this.avg = 0;
 			for (int i = 0; i != 10; i++) {
 				this.i = i;
-				File file = new File(path);
-				
-				t.append("Decrypting: " + file.getName() + "\n");
-				
+				final File file = new File(path);
+				final boolean same = file.getName().equalsIgnoreCase(currentFile);
+				/*
+				runOnUiThread(new Runnable(){
+						public void run(){
+		                try {
+		                	TextView t= (TextView)findViewById(R.id.debugText);
+		                	
+		                	if (same) {
+		                		t.setText("Decrypting: " + file.getName() + "\n" + t.getText());	
+		                	}
+		                	else {
+		                		String s = t.getText().toString();
+		                		String ss = s.substring(0, s.indexOf("\n"));
+		                		
+		                	}
+		                	}
+		                	
+		                } catch (Exception e) {
+		                    Log.d("RYAN", "Thread exception " + e.getMessage());
+		                }
+					}
+				});
+				*/
 				byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
 			}
         }
+		runOnUiThread(new Runnable(){
+			public void run(){
+            try {
+            	TextView t= (TextView)findViewById(R.id.debugText);
+            	t.setText("TESTS DONE\n" + t.getText());
+            	
+            } catch (Exception e) {
+                Log.d("RYAN", "Thread exception " + e.getMessage());
+            }
+		}
+	});
 	}
 }
 

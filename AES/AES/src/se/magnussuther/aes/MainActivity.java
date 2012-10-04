@@ -28,6 +28,9 @@ public class MainActivity extends Activity implements MainViewEvents {
 	private ImageFetcher mImageFetcher = null;
 	private AES mAES = null;
 	
+	private int i = 0;
+	private double avg = 0;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +52,8 @@ public class MainActivity extends Activity implements MainViewEvents {
         		+ "-" + cal.get(Calendar.MONTH) 
         		+ "-" + cal.get(Calendar.DAY_OF_MONTH) 
         		+ "." + cal.get(Calendar.HOUR_OF_DAY) 
-        		+ ":" +  cal.get(Calendar.MINUTE) 
-        		+ ":" + cal.get(Calendar.SECOND) 
+        		+ "_" +  cal.get(Calendar.MINUTE) 
+        		+ "_" + cal.get(Calendar.SECOND) 
         		+ ".txt";
         File logFile = new File(logPath);
         if (!logFile.exists()) {
@@ -70,15 +73,11 @@ public class MainActivity extends Activity implements MainViewEvents {
 	    for (String path : originals) {
 	        try {
 	        	File f = new File(Environment.getExternalStorageDirectory() + "/AES/Orig/" + path);
-//	        	TimeLogger.start("MainActivity.onCreate(): Encrypting image " + f.getAbsolutePath());
 	            byte[] encrypted = encryptImage(f.getAbsolutePath());
-//	            TimeLogger.stop();
 	            File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + f.getName());
 	            crypt.createNewFile();
-//	            TimeLogger.start("MainActivity.onCreate(): Saving encrypted image to SD card");
 	        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(crypt));
 	        	bos.write(encrypted);
-//	        	TimeLogger.stop();
 	        } catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -91,12 +90,8 @@ public class MainActivity extends Activity implements MainViewEvents {
 
 	private byte[] encryptImage(final String imagePath) {
 		try {
-//			TimeLogger.start("MainActivity.encryptImage(): Reading original image from SD card");
 			byte[] origImage = mImageFetcher.getImageBytes(imagePath);
-//			TimeLogger.stop();
-//			TimeLogger.start("MainActivity.encryptImage(): Encrypting image data");
 			byte[] bytes = mAES.getEncrypter().encryptData(origImage);
-//			TimeLogger.stop();
 			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -130,12 +125,15 @@ public class MainActivity extends Activity implements MainViewEvents {
 	
 	private byte[] decryptImage(final String imagePath) {
 		try {
-//			TimeLogger.start("MainActivity.decryptImage(): Reading decrypted image from SD card");
 			byte[] encrypted = mImageFetcher.getImageBytes(imagePath);
-//			TimeLogger.stop();
-//			TimeLogger.start("MainActivity.decryptImage(): Decrypting image data");
+			long startTime = System.nanoTime();
 			byte[] bytes =  mAES.getDecrypter().decryptData(encrypted);
-//			TimeLogger.stop();
+			double time = System.nanoTime() - startTime;
+			avg += time / 1000000000.0;
+			
+			if (this.i == 9) {
+				TimeLogger.log("Image: " + imagePath + " Time: " + avg / 10.0);
+			}
 			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -170,26 +168,12 @@ public class MainActivity extends Activity implements MainViewEvents {
 		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
 		String[] files = crypt.list();
 		
-        	
-		
 		for (String path: files) {
-			double avg = 0;
-			
+			this.avg = 0;
 			for (int i = 0; i != 10; i++) {
+				this.i = i;
 				File file = new File(path);
-//				TimeLogger.start("MainActivity.onMainViewDraw(). Decrypting " + path);
-				long startTime = System.nanoTime();
 				byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
-//				TimeLogger.stop();
-				double time = System.nanoTime() - startTime;
-				avg += time / 1000000000.0;
-				if (i == 9) {
-					TimeLogger.log("Image: " + path + " Time: " + avg / 10.0);
-				}
-				// Well, this certainly is a waste of memory, but is needed to get an immutable Bitmap:
-	//			Bitmap bm = BitmapFactory.decodeByteArray(original, 0, original.length);//.copy(Bitmap.Config.ARGB_8888, true);
-	        
-	//			canvas.drawBitmap(bm, 0, 0, null);
 			}
         }
 	}

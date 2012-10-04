@@ -23,10 +23,4 @@ public class ImageFetcher {
 		
 		return imgData;
 	}
-
-//	public Bitmap openEncryptedImageFromSD(final String imagePath, final AESDecrypter decrypter) throws IOException {
-//		byte[] encryptedImageData = getImageBytes(imagePath);
-//		
-//		byte[] decryptedImageData = decrypter.decryptFile(encryptedImageData);
-//	}
 }

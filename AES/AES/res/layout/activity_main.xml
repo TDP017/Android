@@ -1,7 +1,19 @@
-<se.magnussuther.aes.MainView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:id="@+id/mainview" >
-
-</se.magnussuther.aes.MainView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    xmlns:tools="http://schemas.android.com/tools"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" 
+	    android:background="#FFFF00FF"
+	    android:id="@+id/hassan" >"
+    
+		<TextView android:id="@+id/debug"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Debug"
+              android:textColor="#FF000000"/>	
+	
+		<TextView android:id="@+id/debugText"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="This should change"
+              android:textColor="#FF000000" />		
+</LinearLayout>

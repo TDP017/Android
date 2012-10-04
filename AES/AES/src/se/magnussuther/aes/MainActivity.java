@@ -20,11 +20,14 @@ import android.app.Activity;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-public class MainActivity extends Activity implements MainViewEvents {
+public class MainActivity extends Activity {
 	private static final String TAG = "AES MainActivity";
 			
-	private MainView mMainView = null;	
+	//private MainView mMainView = null;	
 	private ImageFetcher mImageFetcher = null;
 	private AES mAES = null;
 	
@@ -34,10 +37,14 @@ public class MainActivity extends Activity implements MainViewEvents {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.activity_main);
         
+        /*
         mMainView = (MainView) findViewById(R.id.mainview);
         mMainView.registerEventListener(this);
+        */
+        
         
         mImageFetcher = new ImageFetcher();
         
@@ -66,8 +73,6 @@ public class MainActivity extends Activity implements MainViewEvents {
         }
         TimeLogger.setLogFile(logFile);
        
-        
-
 	    File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
 	    String[]originals = orig.list();
 	    for (String path : originals) {
@@ -86,8 +91,19 @@ public class MainActivity extends Activity implements MainViewEvents {
 				e.printStackTrace();
 			}
 	    }
+	    
+	    
+	    
     }
 
+    @Override
+	public void onStart(){
+    	super.onStart();
+        	
+		 onMainViewDraw();
+	}
+    
+    
 	private byte[] encryptImage(final String imagePath) {
 		try {
 			byte[] origImage = mImageFetcher.getImageBytes(imagePath);
@@ -164,15 +180,30 @@ public class MainActivity extends Activity implements MainViewEvents {
 		return null;
 	}
 
-	public void onMainViewDraw(Canvas canvas) {
+	public void onMainViewDraw() {
 		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
 		String[] files = crypt.list();
+		
+		Log.d(TAG, "INSIDE ONMAINVIEWDRAW");
+		
+		TextView t=new TextView(this);
+		 t=(TextView)findViewById(R.id.debugText); 
+
+		 /*
+		 LinearLayout vg = (LinearLayout)findViewById (R.id.hassan);
+		 vg.invalidate();
+*/
+		 
+		 getWindow().getDecorView().findViewById(android.R.id.content).invalidate();
 		
 		for (String path: files) {
 			this.avg = 0;
 			for (int i = 0; i != 10; i++) {
 				this.i = i;
 				File file = new File(path);
+				
+				t.append("Decrypting: " + file.getName() + "\n");
+				
 				byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
 			}
         }

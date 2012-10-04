@@ -30,7 +30,7 @@ public class MainView extends View {
 	
 	@Override
 	public void onDraw(Canvas canvas) {
-		Log.d(TAG, ";JHKNLKM;");
+		Log.d(TAG, "MAINVIEW ONDRAW");
 		mEventListener.onMainViewDraw(canvas);
 	}
 }

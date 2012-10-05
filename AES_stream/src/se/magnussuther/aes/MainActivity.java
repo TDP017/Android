@@ -9,14 +9,16 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,8 +45,9 @@ public class MainActivity extends Activity implements MainViewEvents {
         
         byte[] iv = {0xA,1,0xB,5,4,0xF,7,9,0x17,3,1,6,8,0xC,0xD,91};
         byte[] salt = {0,1,2,3,4,5,6,7,8,9,0xA,0xB,0xC,0xD,0xE,0xF};
-        mAES = new AES("secretdonald", "PBEWITHSHAAND128BITAES-CBC-BC", "AES/CBC/PKCS7Padding", iv, salt, 10000, 256);
-        
+        mAES = new AES("secretdonald", "PBEWITHSHA256AND256BITAES-CBC-BC", "AES/CBC/PKCS7Padding", iv, salt, 10000, 256);
+        // PBEWITHSHAAND128BITAES-CBC-BC
+        // PBEWITHSHA256AND256BITAES-CBC-BC
         
         // Create log file
         Calendar cal = Calendar.getInstance();
@@ -68,24 +71,25 @@ public class MainActivity extends Activity implements MainViewEvents {
        
         
 
-	    File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
-	    String[]originals = orig.list();
-	    for (String path : originals) {
-	        try {
-	        	File f = new File(Environment.getExternalStorageDirectory() + "/AES/Orig/" + path);
-	            byte[] encrypted = encryptImage(f.getAbsolutePath());
-	            File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + f.getName());
-	            crypt.createNewFile();
-	        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(crypt));
-	        	bos.write(encrypted);
-	        } catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }
+//	    File orig = new File(Environment.getExternalStorageDirectory() + "/AES/Orig");
+//	    String[]originals = orig.list();
+//	    for (String path : originals) {
+//	        try {
+//	        	File f = new File(Environment.getExternalStorageDirectory() + "/AES/Orig/" + path);
+//	            byte[] encrypted = encryptImage(f.getAbsolutePath());
+//	            File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + f.getName());
+//	            crypt.createNewFile();
+//	        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(crypt));
+//	        	bos.write(encrypted);
+//	        } catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//	    }
+	    
     }
 
 	private byte[] encryptImage(final String imagePath) {
@@ -123,17 +127,17 @@ public class MainActivity extends Activity implements MainViewEvents {
 	}
     
 	
-	private byte[] decryptImage(final String imagePath) {
+	private Bitmap decryptImage(final String imagePath) {
 		try {
-			byte[] encrypted = mImageFetcher.getImageBytes(imagePath);
 			long startTime = System.nanoTime();
-			byte[] bytes =  mAES.getDecrypter().decryptData(encrypted);
+			Bitmap bytes = mImageFetcher.streamDecrypt(imagePath, mAES.getDecrypter());
 			double time = System.nanoTime() - startTime;
 			avg += time / 1000000000.0;
 			
 			if (this.i == 9) {
 				TimeLogger.log("Image: " + imagePath + " Time: " + avg / 10.0);
 			}
+			
 			return bytes;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -153,12 +157,6 @@ public class MainActivity extends Activity implements MainViewEvents {
 		} catch (InvalidAlgorithmParameterException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		return null;
@@ -167,13 +165,25 @@ public class MainActivity extends Activity implements MainViewEvents {
 	public void onMainViewDraw(Canvas canvas) {
 		File crypt = new File(Environment.getExternalStorageDirectory() + "/AES/Crypt");
 		String[] files = crypt.list();
+		Arrays.sort(files);
+		
+		Bitmap bm = null;
 		
 		for (String path: files) {
 			this.avg = 0;
 			for (int i = 0; i != 10; i++) {
 				this.i = i;
 				File file = new File(path);
-				byte[] original = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
+				bm = decryptImage(Environment.getExternalStorageDirectory() + "/AES/Crypt/" + file.getName());
+//				bm.recycle();
+//				System.gc();
+//				
+//				try {
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 			}
         }
 	}

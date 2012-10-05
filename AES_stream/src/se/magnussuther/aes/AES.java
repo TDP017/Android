@@ -1,5 +1,14 @@
 package se.magnussuther.aes;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+
 public class AES {
 	
 	private final String mPassphrase;
@@ -56,6 +65,19 @@ public class AES {
 		return mKeyLength;
 	}
 
+	
+	public SecretKey calculateSecretKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+		char[] passphrase = getPassphrase().toCharArray();
+		PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, getSalt(), getHashIterations(), getKeyLength());
+		SecretKeyFactory keyfactory = SecretKeyFactory.getInstance(getKeyGenerationAlgorithm());
+		return keyfactory.generateSecret(pbeKeySpec);
+	}
+	
+	
+	public IvParameterSpec calculateIvParameterSpec() {
+		return new IvParameterSpec(getInitializationVector());
+	}
+	
 	public AESEncrypter getEncrypter() {
 		return new AESEncrypter(mPassphrase, mKeyGenerationAlgorithm, mCipherModePadding, mInitializationVector, mSalt, mHashIterations, mKeyLength);
 	}
